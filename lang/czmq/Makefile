@@ -46,7 +46,7 @@ define Build/InstallDev
 
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/libczmq.so \
+		$(PKG_INSTALL_DIR)/usr/lib/libczmq.so* \
 		$(1)/usr/lib/
 
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
@@ -58,7 +58,7 @@ endef
 define Package/czmq/install
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/libczmq.so \
+		$(PKG_INSTALL_DIR)/usr/lib/libczmq.so* \
 		$(1)/usr/lib/
 endef
 
