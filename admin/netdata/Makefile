@@ -8,15 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=netdata
-PKG_VERSION:=1.9.0
-PKG_RELEASE:=1
+PKG_VERSION:=1.10.0
+PKG_RELEASE:=2
 PKG_MAINTAINER:=
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=COPYING
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/firehol/netdata/releases/download/v$(PKG_VERSION)
-PKG_HASH:=2358f2239e2d62da82af9f8b9ec8e6b1d37ac6cb009a15cf4c1d2cc2638a87e7
+PKG_HASH:=0514fc002c5c5fb730156b3fe928965b22327833c6c17e22b7097eda657e77a2
 
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
@@ -50,6 +50,8 @@ define Package/netdata/install
 	mkdir -p $(1)/etc/netdata
 	$(CP) $(PKG_INSTALL_DIR)/etc/netdata $(1)/etc
 	$(CP) ./files/netdata.conf $(1)/etc/netdata
+	mkdir -p $(1)/etc/netdata/custom-plugins.d
+
 	mkdir -p $(1)/usr/share/netdata
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/netdata $(1)/usr/share
 	rm -rf $(1)/usr/share/netdata/web/images
@@ -58,12 +60,15 @@ define Package/netdata/install
 	rm $(1)/usr/share/netdata/web/fonts/*.svg
 	rm $(1)/usr/share/netdata/web/fonts/*.ttf
 	rm $(1)/usr/share/netdata/web/fonts/*.woff
+
 	mkdir -p $(1)/usr/lib/netdata
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/netdata $(1)/usr/lib
 	rm $(1)/usr/lib/netdata/python.d/python-modules-installer.sh
 	chmod 4755 $(1)/usr/lib/netdata/plugins.d/apps.plugin
+
 	mkdir -p $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/netdata.init $(1)/etc/init.d/netdata
+
 	mkdir -p $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/netdata $(1)/usr/sbin
 endef

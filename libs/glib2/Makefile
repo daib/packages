@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=glib2
-PKG_VERSION:=2.56.0
-PKG_RELEASE:=1
+PKG_VERSION:=2.58.1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=glib-$(PKG_VERSION).tar.xz
 PKG_BUILD_DIR:=$(BUILD_DIR)/glib-$(PKG_VERSION)
-PKG_SOURCE_URL:=@GNOME/glib/2.56
-PKG_HASH:=ecef6e17e97b8d9150d0e8a4b3edee1ac37331213b8a2a87a083deea408a0fc7
+PKG_SOURCE_URL:=@GNOME/glib/2.58
+PKG_HASH:=97d6a9d926b6aa3dfaadad3077cfb43eec74432ab455dff14250c769d526d7d6
 
 PKG_BUILD_PARALLEL:=1
 HOST_BUILD_PARALLEL:=1
@@ -44,19 +44,23 @@ define Package/glib2/description
   The GLib library of C routines
 endef
 
+TARGET_CFLAGS += -Wno-error=implicit-function-declaration
+
 HOST_CONFIGURE_ARGS += \
 	--disable-selinux \
 	--with-libiconv=gnu \
 	--with-pcre=internal \
-	--enable-libmount=no
+	--disable-libmount
 
 CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-static \
-	--enable-debug=no \
+	--disable-debug \
 	--disable-selinux \
-	--enable-libmount=no \
+	--disable-libmount \
 	--disable-fam \
+	--disable-gtk-doc-html \
+	--disable-man \
 	--with-libiconv=gnu \
 	--with-pcre=internal
 
@@ -69,6 +73,11 @@ CONFIGURE_VARS += \
 	ac_cv_func_posix_getgrgid_r=yes
 
 define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(CP) \
+		$(PKG_INSTALL_DIR)/usr/bin/* \
+		$(1)/usr/bin/
+
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) \
 		$(PKG_INSTALL_DIR)/usr/include/glib-2.0 \

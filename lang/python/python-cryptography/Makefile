@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-cryptography
-PKG_VERSION:=2.1.4
-PKG_RELEASE:=2
+PKG_VERSION:=2.3.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=cryptography-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://pypi.python.org/packages/78/c5/7188f15a92413096c93053d5304718e1f6ba88b818357d05d19250ebff85
-PKG_HASH:=e4d967371c5b6b2e67855066471d844c5d52d210c36c28d49a8507b96e2c5291
+PKG_SOURCE_URL:= https://files.pythonhosted.org/packages/source/c/cryptography
+PKG_HASH:=8d10113ca826a4c29d5b85b2c4e045ffa8bad74fb525ee0eceb1d38d4c70dfd6
 
 PKG_LICENSE:=Apache-2.0 BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE.APACHE LICENSE.BSD

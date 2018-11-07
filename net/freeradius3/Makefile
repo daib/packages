@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeradius3
-PKG_VERSION:=release_3_0_11
-PKG_RELEASE:=3
+PKG_VERSION:=release_3_0_17
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/FreeRADIUS/freeradius-server/archive
-PKG_HASH:=f0b32edb90368c3b9523e2baa792a1794d8bad662407f0d210a6c460541379b7
+PKG_HASH:=5b2382f08c0d9d064298281c1fb8348fc13df76550ce7a5cfc47ea91361fad91
 
 PKG_MAINTAINER:=Lucile Quirion <lucile.quirion@savoirfairelinux.com>
 PKG_LICENSE:=GPL-2.0
@@ -74,6 +74,7 @@ define Package/freeradius3-default
 +freeradius3-mod-eap-peap \
 +freeradius3-mod-eap-tls \
 +freeradius3-mod-eap-ttls \
++freeradius3-mod-eap-pwd \
 +freeradius3-mod-exec \
 +freeradius3-mod-expiration \
 +freeradius3-mod-expr \
@@ -181,6 +182,12 @@ define Package/freeradius3-mod-eap-ttls
   $(call Package/freeradius3/Default)
   DEPENDS:=freeradius3-mod-eap-tls
   TITLE:=EAP/TTLS module
+endef
+
+define Package/freeradius3-mod-eap-pwd
+  $(call Package/freeradius3/Default)
+  DEPENDS:=freeradius3-mod-eap @FREERADIUS3_OPENSSL
+  TITLE:=EAP/PWD module
 endef
 
 define Package/freeradius3-mod-exec
@@ -397,7 +404,6 @@ CONFIGURE_ARGS+= \
 	--without-rlm_couchbase \
 	--without-rlm_counter \
 	--without-rlm_eap_ikev2 \
-	--without-rlm_eap_pwd \
 	--without-rlm_eap_sim \
 	--without-rlm_eap_tnc \
 	--without-rlm_example \
@@ -468,6 +474,16 @@ else
   CONFIGURE_ARGS+= --without-rlm_eap_ttls
 endif
 
+ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-eap-pwd),)
+  CONFIGURE_ARGS+= \
+		--with-rlm_eap_pwd \
+		--with-rlm_eap_pwd-include-dir="$(STAGING_DIR)/usr/include" \
+		--with-rlm_eap_pwd-lib-dir="$(STAGING_DIR)/usr/lib"
+  CONFIGURE_LIBS+= -lcrypto -lssl
+else
+  CONFIGURE_ARGS+= --without-rlm_eap_pwd
+endif
+
 ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-radutmp),)
   CONFIGURE_ARGS+= --with-rlm_radutmp
 else
@@ -486,6 +502,13 @@ ifneq ($(SDK)$(CONFIG_PACKAGE_freeradius3-mod-ldap),)
 		--with-rlm_ldap-lib-dir="$(STAGING_DIR)/usr/lib"
 else
   CONFIGURE_ARGS+= --without-rlm_ldap
+endif
+
+ifeq ($(CONFIG_USE_GLIBC),y)
+  TARGET_CFLAGS+= -DLIBBSD_OVERLAY -I$(STAGING_DIR)/usr/include/bsd \
+	-D_RPC_NETDB_H
+	#^^^^^^^^^^^^^ avoid inclusion of librpc's netdb.h
+  CONFIGURE_LIBS+= -Wl,--push-state,--as-needed -lbsd -Wl,--pop-state
 endif
 
 CONFIGURE_VARS+= \
@@ -598,6 +621,7 @@ $(eval $(call BuildPlugin,freeradius3-mod-eap-peap,rlm_eap_peap,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap,rlm_eap,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap-tls,rlm_eap_tls,))
 $(eval $(call BuildPlugin,freeradius3-mod-eap-ttls,rlm_eap_ttls,))
+$(eval $(call BuildPlugin,freeradius3-mod-eap-pwd,rlm_eap_pwd,))
 $(eval $(call BuildPlugin,freeradius3-mod-exec,rlm_exec,))
 $(eval $(call BuildPlugin,freeradius3-mod-expiration,rlm_expiration,))
 $(eval $(call BuildPlugin,freeradius3-mod-expr,rlm_expr,))

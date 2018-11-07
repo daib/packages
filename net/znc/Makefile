@@ -8,29 +8,29 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=znc
-PKG_VERSION:=1.6.5
-PKG_RELEASE:=1
+PKG_VERSION:=1.7.1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://znc.in/releases \
-		http://znc.in/releases/archive
-PKG_HASH:=2f0225d49c53a01f8d94feea4619a6fe92857792bb3401a4eb1edd65f0342aca
+PKG_SOURCE_URL:=https://znc.in/releases \
+		https://znc.in/releases/archive
+PKG_HASH:=44cfea7158ea05dc2547c7c6bc22371e66c869def90351de0ab90a9c200d39c4
 
-PKG_MAINTAINER:=Jonas Gorski <jogo@openwrt.org>
+PKG_MAINTAINER:=Jonas Gorski <jonas.gorski@gmail.com>
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
 PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
 
-PKG_CONFIG_DEPENDS := CONFIG_ZNC_ICU
+PKG_CONFIG_DEPENDS:= CONFIG_ZNC_ICU
 
 define Package/znc/default
   SUBMENU:=Instant Messaging
   SECTION:=net
   CATEGORY:=Network
   TITLE:=ZNC
-  URL:=http://en.znc.in/
+  URL:=https://znc.in/
   USERID:=znc:znc
 endef
 
@@ -279,7 +279,7 @@ PKG_CONFIG_DEPENDS += $(patsubst %,CONFIG_PACKAGE_%,$(ZNC_MODULES))
 include $(INCLUDE_DIR)/package.mk
 
 CONFIGURE_VARS += \
-	CXXFLAGS="$(TARGET_CFLAGS) -fno-builtin -fno-rtti" \
+	CXXFLAGS="$(TARGET_CFLAGS) -fno-builtin" \
 	CPPFLAGS="-I$(STAGING_DIR)/usr/include -I$(STAGING_DIR)/include" \
 	LDFLAGS="-nodefaultlibs -lc -L$(STAGING_DIR)/usr/lib -L$(STAGING_DIR)/lib" \
 	LIBS="-lstdc++ -lm -lssl -lcrypto $(LIBGCC_S) -lc"

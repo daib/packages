@@ -8,21 +8,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libyang
-PKG_VERSION:=0.14.53
-PKG_RELEASE=$(PKG_SOURCE_VERSION)
+PKG_VERSION:=0.16-r2
 
 PKG_LICENSE:=GPL-2.0+
 PKG_MAINTAINER:=Mislav Novakovic <mislav.novakovic@sartura.hr>
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=2698bd6484526facbf82b1263810b938b82a2f23
-PKG_MIRROR_HASH:=3bfe4fd8236f0d1903d275aa76e039645d1093ef4204ab3b9bef46aecbe68f72
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.xz
-PKG_SOURCE_URL:=https://github.com/CESNET/libyang.git
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/CESNET/libyang/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=cf354481788f224c58ebe4785a08f992ef00af503529c8d516fdc4d0592996e0
 
-PKG_BUILD_ROOT:=$(BUILD_DIR)/$(PKG_SOURCE_SUBDIR)
-PKG_BUILD_DIR:=$(PKG_BUILD_ROOT)
+CMAKE_INSTALL:=1
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
@@ -73,7 +68,10 @@ define Package/libyang/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libyang.so* $(1)/usr/lib/
 
 	$(INSTALL_DIR) $(1)/usr/lib/libyang
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libyang/* $(1)/usr/lib/libyang/
+	$(INSTALL_DIR) $(1)/usr/lib/libyang/extensions
+	$(INSTALL_DIR) $(1)/usr/lib/libyang/user_types
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libyang/extensions/* $(1)/usr/lib/libyang/extensions
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libyang/user_types/* $(1)/usr/lib/libyang/user_types
 endef
 
 define Package/yanglint/install

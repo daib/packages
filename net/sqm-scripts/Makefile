@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sqm-scripts
-PKG_SOURCE_VERSION:=8217081f7e52af342c362b29480461575c496387
-PKG_VERSION:=1.1.3
-PKG_RELEASE:=2
+PKG_SOURCE_VERSION:=d0ac824ec0c5d0fc3593ce90d83a007da505856e
+PKG_VERSION:=1.2.4
+PKG_RELEASE:=1
 PKG_LICENSE:=GPLv2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE).tar.xz
-PKG_MIRROR_HASH:=a287ce3bf68ed76f4fd7ae3df5e0066d99105b5c139c88bce99555dcb1d230a3
+PKG_MIRROR_HASH:=2882aeae9f8b7827655bae8b0ecae60c405795a2a51aec8d3f2ae5fccecd76b9
 PKG_SOURCE_URL:=https://github.com/tohojo/sqm-scripts.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_RELEASE)
@@ -51,7 +51,7 @@ define Package/luci-app-sqm
   TITLE:=SQM Scripts - LuCI interface
   MAINTAINER:=Toke Høiland-Jørgensen <toke@toke.dk>
   PKGARCH:=all
-  DEPENDS:= lua luci-base +sqm-scripts
+  DEPENDS:= +lua +luci-base +sqm-scripts
   SUBMENU:=3. Applications
 endef
 

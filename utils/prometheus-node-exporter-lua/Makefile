@@ -4,10 +4,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=prometheus-node-exporter-lua
-PKG_VERSION:=2017.12.08
+PKG_VERSION:=2018.07.23
 PKG_RELEASE:=1
 
-PKG_MAINTAINER:=Christian Simon <simon@swine.de>
+PKG_MAINTAINER:=Etienne CHAMPETIER <champetier.etienne@gmail.com>
 PKG_LICENSE:=Apache-2.0
 
 include $(INCLUDE_DIR)/package.mk
@@ -70,6 +70,18 @@ define Package/prometheus-node-exporter-lua-bmx7
   DEPENDS:=prometheus-node-exporter-lua bmx7 +lua-cjson +bmx7-json
 endef
 
+define Package/prometheus-node-exporter-lua-textfile
+  $(call Package/prometheus-node-exporter-lua/Default)
+  TITLE+= (textfile collector)
+  DEPENDS:=prometheus-node-exporter-lua +luci-lib-nixio
+endef
+
+define Package/prometheus-node-exporter-lua-openwrt
+  $(call Package/prometheus-node-exporter-lua/Default)
+  TITLE+= (openwrt collector)
+  DEPENDS:=prometheus-node-exporter-lua
+endef
+
 Build/Compile=
 
 define Package/prometheus-node-exporter-lua/install
@@ -81,6 +93,7 @@ define Package/prometheus-node-exporter-lua/install
 	$(INSTALL_BIN) ./files/usr/bin/prometheus-node-exporter-lua $(1)/usr/bin/prometheus-node-exporter-lua
 	$(INSTALL_DIR) $(1)/usr/lib/lua/prometheus-collectors
 	$(INSTALL_BIN) ./files/usr/lib/lua/prometheus-collectors/cpu.lua         $(1)/usr/lib/lua/prometheus-collectors/
+	$(INSTALL_BIN) ./files/usr/lib/lua/prometheus-collectors/conntrack.lua   $(1)/usr/lib/lua/prometheus-collectors/
 	$(INSTALL_BIN) ./files/usr/lib/lua/prometheus-collectors/filefd.lua      $(1)/usr/lib/lua/prometheus-collectors/
 	$(INSTALL_BIN) ./files/usr/lib/lua/prometheus-collectors/loadavg.lua     $(1)/usr/lib/lua/prometheus-collectors/
 	$(INSTALL_BIN) ./files/usr/lib/lua/prometheus-collectors/meminfo.lua     $(1)/usr/lib/lua/prometheus-collectors/
@@ -119,6 +132,16 @@ define Package/prometheus-node-exporter-lua-bmx7/install
 	$(INSTALL_BIN) ./files/usr/lib/lua/prometheus-collectors/bmx7.lua $(1)/usr/lib/lua/prometheus-collectors/
 endef
 
+define Package/prometheus-node-exporter-lua-textfile/install
+	$(INSTALL_DIR) $(1)/usr/lib/lua/prometheus-collectors
+	$(INSTALL_BIN) ./files/usr/lib/lua/prometheus-collectors/textfile.lua $(1)/usr/lib/lua/prometheus-collectors/
+endef
+
+define Package/prometheus-node-exporter-lua-openwrt/install
+	$(INSTALL_DIR) $(1)/usr/lib/lua/prometheus-collectors
+	$(INSTALL_BIN) ./files/usr/lib/lua/prometheus-collectors/openwrt.lua $(1)/usr/lib/lua/prometheus-collectors/
+endef
+
 $(eval $(call BuildPackage,prometheus-node-exporter-lua))
 $(eval $(call BuildPackage,prometheus-node-exporter-lua-nat_traffic))
 $(eval $(call BuildPackage,prometheus-node-exporter-lua-netstat))
@@ -126,3 +149,5 @@ $(eval $(call BuildPackage,prometheus-node-exporter-lua-wifi))
 $(eval $(call BuildPackage,prometheus-node-exporter-lua-wifi_stations))
 $(eval $(call BuildPackage,prometheus-node-exporter-lua-bmx6))
 $(eval $(call BuildPackage,prometheus-node-exporter-lua-bmx7))
+$(eval $(call BuildPackage,prometheus-node-exporter-lua-textfile))
+$(eval $(call BuildPackage,prometheus-node-exporter-lua-openwrt))

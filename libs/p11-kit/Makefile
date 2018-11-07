@@ -8,14 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=p11-kit
-PKG_VERSION:=0.23.1
-PKG_RELEASE:=2
+PKG_VERSION:=0.23.14
+PKG_RELEASE:=1
 PKG_MAINTAINER:=Nikos Mavrogiannopoulos <n.mavrogiannopoulos@gmail.com>
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_HASH:=e57371669f3b157141b86c429bd9c29741994b2f5ff115fcb8a03e751b0f6ac4
-PKG_SOURCE_URL:=http://p11-glue.freedesktop.org/releases/
+PKG_HASH:=1cb9fa6d237539f25f62f4c3d4ec71a1c8e0772957ec45ec5af92134129e0d70
+PKG_SOURCE_URL:=https://github.com/p11-glue/$(PKG_NAME)/releases/download/$(PKG_VERSION)
 
+PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -24,7 +25,7 @@ define Package/p11-kit
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=A library that provides a way to load and enumerate PKCS11 modules.
-  URL:=http://p11-glue.freedesktop.org/p11-kit.html
+  URL:=https://p11-glue.github.io/p11-glue/p11-kit.html
   DEPENDS:=+libtasn1 +libpthread
 endef
 

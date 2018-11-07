@@ -8,9 +8,9 @@ include $(TOPDIR)/rules.mk
 PECL_NAME:=pecl_http
 PECL_LONGNAME:=Extended HTTP Support
 
-PKG_VERSION:=3.1.0
-PKG_RELEASE:=4
-PKG_HASH:=e3de67b156e7d5f6c2e5eb1e2b5f0acceb7004f1260d68c9f8b2c0f9629aabf0
+PKG_VERSION:=3.2.0
+PKG_RELEASE:=1
+PKG_HASH:=6fb7f038365fb1f3302f1b7e7d6b55d5c422bdea36057b1efe02bbe6ad3cc01b
 
 PKG_NAME:=php7-pecl-http
 PKG_SOURCE:=$(PECL_NAME)-$(PKG_VERSION).tgz
@@ -53,5 +53,5 @@ CONFIGURE_ARGS+= \
 	--with-http-libevent-dir="$(STAGING_DIR)/usr" \
 	--with-http-libidn-dir="$(STAGING_DIR)/usr"
 
-$(eval $(call PECLPackage,http,$(PECL_LONGNAME),+icu +libcurl +librt +libevent2 +libidn +php7-mod-hash +php7-mod-iconv +php7-mod-session +php7-pecl-raphf +php7-pecl-propro,30))
+$(eval $(call PECLPackage,http,$(PECL_LONGNAME),+icu +libcurl +librt +libevent2 +PACKAGE_libidn:libidn +libidn2 +php7-mod-hash +php7-mod-iconv +php7-mod-session +php7-pecl-raphf +php7-pecl-propro,30))
 $(eval $(call BuildPackage,$(PKG_NAME)))

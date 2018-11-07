@@ -1,6 +1,6 @@
 #
-# Copyright (C) 2006-2017 OpenWrt.org
-# Copyright (C) 2017 Ian Leonard <antonlacon@gmail.com>
+# Copyright (C) 2017-2018 Ian Leonard <antonlacon@gmail.com>
+# Copyright (C) 2018 Ted Hess <thess@kitschensync.net>
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -9,17 +9,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ffmpeg
-PKG_VERSION:=3.2.9
-PKG_RELEASE:=1
+PKG_VERSION:=3.2.12
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://ffmpeg.org/releases/
-PKG_HASH:=1131d37890ed3dcbc3970452b200a56ceb36b73eaa51d1c23c770c90f928537f
+PKG_HASH:=8985cea7b1b3b2e0e2b2a8ac6187a7fb022fe8aa9d35101760a000205c59c412
 PKG_MAINTAINER:=Ted Hess <thess@kitschensync.net>, \
 		Ian Leonard <antonlacon@gmail.com>
 
 PKG_LICENSE:=LGPL-2.1+ GPL-2+ LGPL-3
 PKG_LICENSE_FILES:=COPYING.GPLv2 COPYING.GPLv3 COPYING.LGPLv2.1 COPYING.LGPLv3
+PKG_CPE_ID:=cpe:/a:ffmpeg:ffmpeg
 
 FFMPEG_CUSTOM_ENCODERS:= \
 	ac3 \
@@ -120,11 +121,8 @@ FFMPEG_CUSTOM_PROTOCOLS:= \
 	file http icecast pipe rtp tcp udp
 
 FFMPEG_MINI_DECODERS:= \
-	aac \
 	ac3 \
 	flac \
-	h264 \
-	hevc \
 	jpegls \
 	mp2 \
 	mp3 \
@@ -134,10 +132,12 @@ FFMPEG_MINI_DECODERS:= \
 	mpegvideo \
 	opus \
 	png \
-	vc1 \
 	vorbis \
-	wmav1 \
-	wmav2 \
+
+FFMPEG_PATENTED_MINI_DECODERS:= \
+	h264 \
+	hevc \
+	vc1 \
 
 FFMPEG_MINI_DEMUXERS:= \
 	avi \
@@ -154,8 +154,6 @@ FFMPEG_MINI_PROTOCOLS:= \
 	file
 
 FFMPEG_AUDIO_DECODERS:= \
-	aac \
-	aac_latm \
 	ac3 \
 	adpcm_* \
 	alac \
@@ -172,14 +170,9 @@ FFMPEG_AUDIO_DECODERS:= \
 	pcm_* \
 	vorbis \
 	wavpack \
-	wmav1 \
-	wmav2 \
-	wmalossless \
-	wmapro \
 	zlib \
 
 FFMPEG_AUDIO_DEMUXERS:= \
-	aac \
 	ac3 \
 	aiff \
 	amr \
@@ -204,13 +197,32 @@ FFMPEG_AUDIO_DEMUXERS:= \
 FFMPEG_AUDIO_PROTOCOLS:= \
 	file http icecast rtp tcp udp
 
+FFMPEG_PATENTED_DECODERS:= \
+	atrac3 \
+	h264 \
+	hevc \
+	vc1 \
+
+FFMPEG_PATENTED_ENCODERS:=$(FFMPEG_PATENDED_DECODERS)
+
+FFMPEG_PATENTED_MUXERS:= \
+	h264 \
+	hevc \
+	vc1 \
+
+FFMPEG_PATENTED_DEMUXERS:=$(FFMPEG_PATENTED_MUXERS)
+
+FFMPEG_PATENTED_PARSERS:= \
+	h264 \
+	hevc \
+	vc1 \
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_CONFIG_DEPENDS:= \
 	$(patsubst %,CONFIG_FFMPEG_CUSTOM_ENCODER_%,$(FFMPEG_CUSTOM_ENCODERS)) \
 	$(patsubst %,CONFIG_FFMPEG_CUSTOM_DECODER_%,$(FFMPEG_CUSTOM_DECODERS)) \
-	$(patsubst %,CONFIG_FFMPEG_CUSTOM_MUXER_%,$(FFMPEG_CUSTOM_DEMUXERS)) \
+	$(patsubst %,CONFIG_FFMPEG_CUSTOM_MUXER_%,$(FFMPEG_CUSTOM_MUXERS)) \
 	$(patsubst %,CONFIG_FFMPEG_CUSTOM_DEMUXER_%,$(FFMPEG_CUSTOM_DEMUXERS)) \
 	$(patsubst %,CONFIG_FFMPEG_CUSTOM_PARSER_%,$(FFMPEG_CUSTOM_PARSERS)) \
 	$(patsubst %,CONFIG_FFMPEG_CUSTOM_PROTOCOL_%,$(FFMPEG_CUSTOM_PROTOCOLS))
@@ -226,6 +238,10 @@ endef
 define Package/ffmpeg/Default/description
  FFmpeg is a a software package that can record, convert and stream digital
  audio and video in numerous formats.
+
+ FFmpeg licensing / patent issues are complex. It is the reponsibility of the
+ user to understand any requirements in this regard with its usage. See:
+ https://ffmpeg.org/legal.html for further information.
 endef
 
 
@@ -313,7 +329,6 @@ endef
 define Package/libffmpeg-audio-dec
 $(call Package/libffmpeg/Default)
  TITLE+= (audio)
- DEPENDS+= @BUILD_PATENTED
  VARIANT:=audio-dec
 endef
 
@@ -327,12 +342,10 @@ endef
 define Package/libffmpeg-full
 $(call Package/libffmpeg/Default)
  TITLE+= (full)
- DEPENDS+= @BUILD_PATENTED +alsa-lib +PACKAGE_libopus:libopus
- ifeq ($(CONFIG_SOFT_FLOAT),y)
-	DEPENDS+= +PACKAGE_shine:shine
- else
-	DEPENDS+= +PACKAGE_lame-lib:lame-lib +PACKAGE_libx264:libx264
- endif
+ DEPENDS+= +alsa-lib +PACKAGE_libopus:libopus \
+    $(if $$(CONFIG_SOFT_FLOAT),\
+	+PACKAGE_shine:shine,\
+	+PACKAGE_lame-lib:lame-lib +PACKAGE_libx264:libx264 +PACKAGE_fdk-aac:fdk-aac)
  VARIANT:=full
 endef
 
@@ -347,7 +360,6 @@ endef
 define Package/libffmpeg-mini
 $(call Package/libffmpeg/Default)
  TITLE+= (mini)
- DEPENDS+= @BUILD_PATENTED
  VARIANT:=mini
 endef
 
@@ -358,6 +370,11 @@ $(call Package/ffmpeg/Default/description)
 endef
 
 
+# Strip off FPU notation
+REAL_CPU_TYPE:=$(firstword $(subst +, ,$(CONFIG_CPU_TYPE)))
+# Fixup cpu types recogized by ffmpeg configure
+REAL_CPU_TYPE:=$(subst octeonplus,octeon+,$(REAL_CPU_TYPE))
+
 FFMPEG_CONFIGURE:= \
 	CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS) $(FPIC)" \
 	LDFLAGS="$(TARGET_LDFLAGS)" \
@@ -365,6 +382,7 @@ FFMPEG_CONFIGURE:= \
 	--enable-cross-compile \
 	--cross-prefix="$(TARGET_CROSS)" \
 	--arch="$(ARCH)" \
+	$(if $(REAL_CPU_TYPE),--cpu=$(call qstrip,$(REAL_CPU_TYPE)),) \
 	--target-os=linux \
 	--prefix="/usr" \
 	--pkg-config="pkg-config" \
@@ -404,6 +422,10 @@ FFMPEG_CONFIGURE+= \
 else ifneq ($(findstring powerpc,$(CONFIG_ARCH)),)
 FFMPEG_CONFIGURE+= \
 	--disable-altivec
+# libavcode/mips/aacdec_mips.c build problem
+else ifneq ($(findstring 24kf,$(CONFIG_CPU_TYPE)),)
+FFMPEG_CONFIGURE+= \
+	--disable-inline-asm
 endif
 
 # selectively disable optimizations according to arch/cpu type
@@ -428,14 +450,31 @@ ifeq ($(ARCH),x86_64)
 	FFMPEG_CONFIGURE+= --enable-lto
 endif
 
-ifneq ($(CONFIG_YASM),y)
-FFMPEG_CONFIGURE+= --disable-yasm
-
+ifneq ($(CONFIG_TARGET_x86),)
+ifeq ($(CONFIG_NASM),y)
+  # Set yasmexe to anything but YASM/NASM (ffmpeg configure will then find NASM correctly)
+  # Newer ffmpeg packages will use --enable-x86asm (with NASM default)
+  FFMPEG_CONFIGURE += --yasmexe=xyzzy
+else
+  FFMPEG_CONFIGURE += --disable-yasm
+endif
 endif
 
 ifeq ($(BUILD_VARIANT),full)
+
+  FFMPEG_DISABLE= \
+	$(foreach c, $(2), \
+		--disable-$(1)="$(c)" \
+	)
+
 	FFMPEG_CONFIGURE+= \
 		--enable-avresample \
+		$(if $(CONFIG_BUILD_PATENTED),, \
+			$(call FFMPEG_DISABLE,decoder,$(FFMPEG_PATENTED_DECODERS)) \
+			$(call FFMPEG_DISABLE,encoder,$(FFMPEG_PATENTED_ENCODERS)) \
+			$(call FFMPEG_DISABLE,muxer,$(FFMPEG_PATENTED_MUXERS)) \
+			$(call FFMPEG_DISABLE,demuxer,$(FFMPEG_PATENTED_DEMUXERS)) \
+			$(call FFMPEG_DISABLE,parser,$(FFMPEG_PATENTED_PARSERS))) \
 		$(if $(CONFIG_PACKAGE_libopus),--enable-libopus)
   ifeq ($(CONFIG_SOFT_FLOAT),y)
 	FFMPEG_CONFIGURE+= \
@@ -448,11 +487,16 @@ ifeq ($(BUILD_VARIANT),full)
 	else
 		FFMPEG_CONFIGURE+= --enable-small
 	endif
-	FFMPEG_CONFIGURE+= \
-		--enable-gpl \
-		\
-		$(if $(CONFIG_PACKAGE_lame-lib),--enable-libmp3lame) \
-		$(if $(CONFIG_PACKAGE_libx264),--enable-libx264)
+	FFMPEG_CONFIGURE+= $(if $(CONFIG_PACKAGE_lame-lib),--enable-libmp3lame)
+	# x264 support and fdk-aac support can't coexist and be distributed.
+	# Prioritize x264 over fdk-aac in default builds (maintain status-quo).
+	ifneq ($(CONFIG_PACKAGE_libx264),)
+		FFMPEG_CONFIGURE+= \
+			--enable-gpl \
+			--enable-libx264
+	else
+		FFMPEG_CONFIGURE+= $(if $(CONFIG_PACKAGE_fdk-aac),--enable-libfdk-aac)
+	endif
   endif
 endif
 
@@ -524,7 +568,7 @@ ifeq ($(CONFIG_FFMPEG_CUSTOM_SELECT_libshine),y)
 	--enable-libshine --enable-encoder=libshine
 endif
 
-ifeq ($(CONFIG_FFMPEG_CUSTOM_SELECT_libx264),y)
+ifneq ($(CONFIG_FFMPEG_CUSTOM_SELECT_libx264),)
   FFMPEG_CONFIGURE+= \
 	--enable-libx264 --enable-encoder=libx264
 endif
@@ -573,7 +617,9 @@ ifeq ($(BUILD_VARIANT),mini)
 	--disable-everything \
 	$(call FFMPEG_ENABLE,decoder,$(FFMPEG_MINI_DECODERS)) \
 	$(call FFMPEG_ENABLE,demuxer,$(FFMPEG_MINI_DEMUXERS)) \
-	$(call FFMPEG_ENABLE,protocol,$(FFMPEG_MINI_PROTOCOLS))
+	$(call FFMPEG_ENABLE,protocol,$(FFMPEG_MINI_PROTOCOLS)) \
+	$(if $(CONFIG_BUILD_PATENTED), \
+		$(call FFMPEG_ENABLE,decoder,$(FFMPEG_PATENTED_MINI_DECODERS)))
 endif
 
 ifneq ($(CONFIG_TARGET_x86),)
@@ -599,7 +645,7 @@ define Build/InstallDev/custom
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/lib{avcodec,avdevice,avformat,avutil}.pc $(1)/usr/lib/pkgconfig/
 endef
 
-# Soft float is LGPL (no libpostproc); Hard float is GPL (yes libpostproc)
+# Only ffmpeg with libx264 is GPL (yes libpostproc); all other builds are lgpl (no libpostproc)
 define Build/InstallDev/full
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
@@ -608,9 +654,11 @@ define Build/InstallDev/full
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib{avcodec,avdevice,avfilter,avformat,avresample,avutil,swresample,swscale}.{a,so*} $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/lib{avcodec,avdevice,avfilter,avformat,avresample,avutil,swresample,swscale}.pc $(1)/usr/lib/pkgconfig/
 ifneq ($(CONFIG_SOFT_FLOAT),y)
+ifneq ($(CONFIG_PACKAGE_libx264),)
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/libpostproc $(1)/usr/include/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libpostproc.{a,so*} $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/libpostproc.pc $(1)/usr/lib/pkgconfig/
+endif
 endif
 endef
 
@@ -669,12 +717,14 @@ define Package/libffmpeg-custom/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib{avcodec,avdevice,avformat,avutil}.so.* $(1)/usr/lib/
 endef
 
-# Soft float is LGPL (no libpostproc); Hard float is GPL (yes libpostproc)
+# Only ffmpeg with libx264 is GPL (yes libpostproc); all other builds are lgpl (no libpostproc)
 define Package/libffmpeg-full/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib{avcodec,avdevice,avfilter,avformat,avresample,avutil,swresample,swscale}.so.* $(1)/usr/lib/
 ifneq ($(CONFIG_SOFT_FLOAT),y)
+ifneq ($(CONFIG_PACKAGE_libx264),)
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libpostproc.so.* $(1)/usr/lib/
+endif
 endif
 endef
 

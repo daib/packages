@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libgpiod
-PKG_VERSION:=1.0
+PKG_VERSION:=1.1.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/software/libs/libgpiod/
-PKG_HASH:=34c76b3730b9d4a1159bcb14000f78b1e890251b8a3823b794fa930654eabdd0
+PKG_HASH:=172fa1544ecb51f37533b3e67862298d50c0a5cc84975f3c0706dc15467f0dfd
 
 PKG_LICENSE:=LGPL-2.1+
 PKG_LICENSE_FILES:=COPYING
@@ -34,7 +34,7 @@ define Package/libgpiod
   CATEGORY:=Libraries
   URL:=https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
   TITLE:=Library for interacting with Linux's GPIO character device
-  DEPENDS:=@GPIO_SUPPORT
+  DEPENDS:=@GPIO_SUPPORT @(LINUX_4_9||LINUX_4_14)
 endef
 
 define Package/libgpiod/description
